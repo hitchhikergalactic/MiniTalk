@@ -14,18 +14,18 @@
 
 # define MINITALK_H
 
-typedef struct s_server
+typedef struct s_signal_receiver
 {
-	char	signals_received [8];
-	int		num_signal;
+	char	signal_buffer [8];
+	int		signal_count;
 
-}	t_server;
+}	t_signal_receiver;
 
-typedef struct s_client
+typedef struct s_msg_buffer_sender
 {
 	int	*signals;
-	int	num_signals;
+	int	signal_counts;
 	int	signal_index;
-}	t_client;
+}	t_msg_buffer_sender;
 
 #endif

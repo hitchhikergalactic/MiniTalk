@@ -17,7 +17,7 @@
 #include "libft/libft.h"
 #include "minitalk_bonus.h"
 
-t_server	g_signal_control;
+t_signal_receiver	g_signal_control;
 
 static	int	ft_btoi(const char *num)
 {
@@ -37,25 +37,25 @@ static	int	ft_btoi(const char *num)
 	return (value);
 }
 
-void	handler_sigusr1(int sign, siginfo_t *siginfo, void *context)
+void	process_sigusr1(int sign, siginfo_t *siginfo, void *context)
 {
 	char	byte;
 
 	(void)context;
 	(void)siginfo;
 	if (sign == SIGUSR1)
-		g_signal_control.signals_received [g_signal_control.num_signal] = '0';
+		g_signal_control.signal_buffer [g_signal_control.signal_count] = '0';
 	else
-		g_signal_control.signals_received [g_signal_control.num_signal] = '1';
-	g_signal_control.num_signal++;
-	if (g_signal_control.num_signal == 8)
+		g_signal_control.signal_buffer [g_signal_control.signal_count] = '1';
+	g_signal_control.signal_count++;
+	if (g_signal_control.signal_count == 8)
 	{
-		byte = ft_btoi (g_signal_control.signals_received);
+		byte = ft_btoi (g_signal_control.signal_buffer);
 		if (byte == '\0')
 			write(1, "\n", 1);
 		else
 			write(1, &byte, 1);
-		g_signal_control.num_signal = 0;
+		g_signal_control.signal_count = 0;
 	}
 	kill(siginfo->si_pid, SIGUSR1);
 }
@@ -66,9 +66,9 @@ int	main(void)
 	int					sig_s1;
 	int					sig_s2;
 
-	g_signal_control.num_signal = 0;
+	g_signal_control.signal_count = 0;
 	ft_memset (&sa, 0, sizeof(sa));
-	sa.sa_sigaction = handler_sigusr1;
+	sa.sa_sigaction = process_sigusr1;
 	sa.sa_flags = SA_SIGINFO;
 	sig_s1 = sigaction (SIGUSR1, &sa, NULL);
 	sig_s2 = sigaction (SIGUSR2, &sa, NULL);
