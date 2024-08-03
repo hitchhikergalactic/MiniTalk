@@ -17,58 +17,58 @@
 #include "libft/libft.h"
 #include "minitalk.h"
 
-t_client	g_sig_cont;
+t_msg_buffer_sender	g_sig_cont;
 
-static void	byte_to_signals(char byte, int start_index)
+static void	translate_byte_to_signals(char byte, int start_index)
 {
-	int	mask;
+	int	current_mask;
 	int	bit_index;
 	int	bit;
 
-	mask = 128;
+	current_mask = 128;
 	bit_index = 0;
 	while (bit_index < 8)
 	{
-		bit = (byte & mask);
+		bit = (byte & current_mask);
 		if (bit == 0)
 			g_sig_cont.signals[start_index] = SIGUSR1;
 		else
 			g_sig_cont.signals[start_index] = SIGUSR2;
 		start_index++;
-		mask = mask / 2;
+		current_mask = current_mask / 2;
 		bit_index++;
 	}
 }
 
-static void	message_to_signals(const char *message)
+static void	convert_msg_buffer_to_signals(const char *msg_buffer)
 {
 	int		num_bytes;
-	int		byte_index;
+	int		msg_buffer_byte_index;
 	int		start_index;
 
-	num_bytes = ft_strlen (message) + 1;
-	g_sig_cont.num_signals = num_bytes * 8;
-	g_sig_cont.signals = malloc (g_sig_cont.num_signals * sizeof(int));
+	num_bytes = ft_strlen (msg_buffer) + 1;
+	g_sig_cont.signal_counts = num_bytes * 8;
+	g_sig_cont.signals = malloc (g_sig_cont.signal_counts * sizeof(int));
 	if (g_sig_cont.signals == NULL)
 	{
 		free (g_sig_cont.signals);
 		return ;
 	}
-	byte_index = 0;
+	msg_buffer_byte_index = 0;
 	start_index = 0;
-	while (byte_index < num_bytes)
+	while (msg_buffer_byte_index < num_bytes)
 	{
-		byte_to_signals(message[byte_index], start_index);
-		byte_index++;
+		translate_byte_to_signals(msg_buffer[msg_buffer_byte_index], start_index);
+		msg_buffer_byte_index++;
 		start_index = start_index + 8;
 	}
 }
 
-void	handler_sigusr1(int sign, siginfo_t *siginfo, void *context)
+void	process_sigusr1(int sign, siginfo_t *siginfo, void *context)
 {
 	(void)sign;
 	(void)context;
-	if (g_sig_cont.signal_index >= g_sig_cont.num_signals)
+	if (g_sig_cont.signal_index >= g_sig_cont.signal_counts)
 		return ;
 	usleep(10);
 	if (kill(siginfo->si_pid, g_sig_cont.signals[g_sig_cont.signal_index]) < 0)
@@ -90,18 +90,18 @@ int	main(int argc, char **argv)
 	if (pid == 0)
 		return (-1);
 	ft_memset (&sa, 0, sizeof(sa));
-	sa.sa_sigaction = handler_sigusr1;
+	sa.sa_sigaction = process_sigusr1;
 	sa.sa_flags = SA_SIGINFO;
 	if (sigaction(SIGUSR1, &sa, NULL) < 0)
 		return (-1);
-	message_to_signals(argv[2]);
+	convert_msg_buffer_to_signals(argv[2]);
 	g_sig_cont.signal_index = 1;
 	if (kill(pid, g_sig_cont.signals[0]) < 0)
 	{
 		free (g_sig_cont.signals);
 		return (-1);
 	}
-	while (g_sig_cont.signal_index < g_sig_cont.num_signals)
+	while (g_sig_cont.signal_index < g_sig_cont.signal_counts)
 		pause ();
 	free (g_sig_cont.signals);
 	return (0);

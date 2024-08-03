@@ -14,19 +14,19 @@
 
 # define MINITALK_BONUS_H
 
-typedef struct s_server
+typedef struct s_signal_receiver
 {
-	char	signals_received [8];
-	int		num_signal;
+	char	signal_buffer [8];
+	int		signal_count;
 
-}	t_server;
+}	t_signal_receiver;
 
-typedef struct s_client
+typedef struct s_msg_buffer_sender
 {
-	int		mask;
-	int		byte_index;
-	char	*message;
-	int		is_finished;
-}	t_client;
+	int		current_mask;
+	int		msg_buffer_byte_index;
+	char	*msg_buffer;
+	int		transmission_complete;
+}	t_msg_buffer_sender;
 
 #endif
