@@ -1,54 +1,69 @@
-Overview
+# MiniTalk
 
-Minitalk is a project that explores inter-process communication in C using Unix signals. The primary focus is on understanding and handling signals, converting characters to binary, and managing asynchronous communication between processes. This document provides an overview of the key concepts and implementations involved in Minitalk.
-Signals
+**MiniTalk** is a project that implements a communication system between a client and a server using UNIX signals. This project demonstrates how to send and receive messages encoded in binary through signals.
 
-Signals are software interrupts used to notify a process of events. Common signals include SIGINT, SIGABRT, SIGQUIT, SIGUSR1, and SIGUSR2. When a signal is sent, the kernel can either ignore it, catch it using a handler function, or apply the default action.
-Signal Handling
+## How It Works
 
-Two main approaches are used for handling signals:
+1. **Compiling the Program**
 
-    Signal() Function: An older method that lacks some protections and consistency across systems.
-    Sigaction() Function: A more robust method that allows blocking of other signals and provides better control over signal handling.
+   To compile the program, follow these steps:
 
-Binary and Character Conversions 
+   ```bash
+   git clone https://github.com/gjmacias/minitalk
+   cd minitalk
+   make
+   ```
 
-The project involves converting characters to binary and vice versa, utilizing bitwise operators. This is crucial for sending and receiving data bit by bit through signals.
-Example
+2. **Running the Server**
 
+   In one terminal, start the server with:
 
-For example, the character 'H' has a binary representation of 01001000. By right-shifting and extracting bits, this binary data can be transmitted as signals.
-Implementation Overview
-Client
- 
-The client sends data to the server by converting characters to binary and sending corresponding signals. It includes:
+   ```bash
+   ./server
+   ```
 
-    Signal handlers to acknowledge responses from the server.
-    A conversion function that sends each bit as a separate signal.
+   This will print the server's PID, which is needed for the client to communicate with it. The message will look like this:
 
+   ```
+   SUCCESS!, Server is ready :D! The PID: *VWXYZ*
+   ```
 
+3. **Running the Client**
 
-From top down, you would realise that when you line up the rightmost value
-it will be 11110000, which is the binary value of -16.
+   In a **second** terminal, run the client, passing the server's PID and the message you want to send:
 
-From top down, you would realise that when you line up the rightmost value
-it will be 01001000, which is the binary value of our H.It is this right-most 
-value we will be saving everytime we shift
+   ```bash
+   ./client *VWXYZ* "I am a message that will be sent from the client to the server"
+   ```
 
-Server
+   Here, `*VWXYZ*` should be replaced with the PID of the server obtained from the previous step, and `"I am a message that will be sent from the client to the server"` is the message you want to send.
 
-The server receives the signals, reconstructs the binary data into characters, and displays them. It:
+## How It Works
 
-    Sets up signal handlers to process incoming bits.
-    Converts binary data back into characters and handles message termination.
+- **Server**:
+  - **Initialization**: The server sets up `sigaction` to handle signals and specifies the `handler_sigusr1` function to process them.
+  - **Active Waiting**: Uses `pause()` to sleep until signals are received.
+  - **Signal Handling**: When a signal arrives, `handler_sigusr1` processes it and sends a `SIGUSR1` signal back to the client to confirm that it can send the next signal.
 
-Key Considerations
+- **Client**:
+  - **Encoding**: The client converts the message into a series of bits using the binary representation of each character.
+  - **Sending Signals**: Sends each bit as a signal (`SIGUSR1` for 0 and `SIGUSR2` for 1) to the server.
 
-    Asynchronous Communication: Handling signals requires careful synchronization to ensure data integrity.
-    Error Handling: Includes checking for signal handling errors and managing unresponsive processes.
-    Performance: Using usleep() for slight delays ensures the client does not overwhelm the server with signals.
+## Functions Used
 
-FURTHER READING ON THE TOPIC
+- **`sigaction`**: Configures the server to handle signals and defines the signal handler.
+- **`kill`**: Sends signals to the client.
+- **`getpid`**: Retrieves the server's PID.
+- **`pause`**: Causes the server to wait until a signal is received.
+- **`libft`**: Auxiliary functions such as `ft_memset` for initializing structures and `ft_strlen` for calculating string lengths.
+
+## About the Project
+
+This project is part of my learning journey about inter-process communication and signal handling in UNIX. I am thoroughly enjoying this path and believe that sharing it can be even more rewarding. If you have ideas for improving this project or find ways to make it more efficient, please feel free to fork it and contribute! Any improvements or suggestions are greatly appreciated.
+
+Thank you for your interest and happy coding!
+
+---
 
 https://www.oracle.com/technical-resources/articles/it-infrastructure/dev-signal-handlers-studio.html
 https://pubs.opengroup.org/onlinepubs/9699919799/functions/sigaction.html
