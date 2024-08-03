@@ -51,6 +51,7 @@ clean:
 fclean: clean
 	@make -sC libft fclean
 	@rm -f $(NAME)
+	@rm -f $(SERVER) $(CLIENT) $(SERVER_BONUS) $(CLIENT_BONUS)
 
 re: fclean all
 
