@@ -56,6 +56,34 @@
 - **`getpid`**: Retrieves the server's PID.
 - **`pause`**: Causes the server to wait until a signal is received.
 - **`libft`**: Auxiliary functions such as `ft_memset` for initializing structures and `ft_strlen` for calculating string lengths.
+  
+TESTER
+git clone https://github.com/ThibaudM13/minitalk-Tester.git
+Preparation and execution
+
+## 1. Edit the value of PATH_TO_CLIENT with your own client's path
+## 2. Make your client and server program
+## 3. Launch your server
+## 4. Execute this script as below (By default the script launch the speed test on 1000 char)
+
+./tester.sh <your server PID> [options]
+
+Options:
+  -m      Mandatory part
+  -b      Execution of bonus part (All unicode)
+  -[0-6]  Execution of special tests
+
+  [Speed test]   Time to print 1 000 char 
+$PATH_TO_CLIENT $p_id   0.02s user 0.03s system 9% cpu 0.584 total
+ [Test 1]       Basic test 
+
+ [Test 2]       Empty string
+
+ [Test 3]       Sending big str with 20 000 char
+
+ [Test 4]       Trying to crash your exhange Server-Client, sending str with 3 000 char (15 times) 
+ [ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] [ 6 ] [ 7 ] [ 8 ] [ 9 ] [ 10 ] [ 11 ] [ 12 ] [ 13 ] [ 14 ] [ 15 ]
+If all was corrrectly display on your server terminal: Perfect, well done! 💪
 
 ## About the Project
 
